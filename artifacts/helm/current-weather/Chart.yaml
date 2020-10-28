@@ -22,4 +22,4 @@ appVersion: "1.0.0"
 description: Current weather based on your location, determined by your IP address
 
 # A URL to an SVG or PNG image to be used as an icon
-icon: https://www.metaweather.com/static/img/weather/png/64/s.png
+icon: https://www.metaweather.com/static/img/weather/s.svg
