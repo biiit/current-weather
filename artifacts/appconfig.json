@@ -1,0 +1,12 @@
+{
+  "name": "current-weather",
+  "provider": "Forecast Ltd.",
+  "description": "Current weather based on your location, determined by your IP address",
+  "version": "1.0.0",
+  "icon": "https://www.metaweather.com/static/img/weather/png/64/s.png",
+  "useShellSDK": true,
+  "dockerRegistry": "beatmeiersap",
+  "helmChartVersion": "1.0.0",
+  "parameters": [],
+  "outletPositions": []
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Current Weather</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/4.1.0/system.min.js"
+          integrity="sha256-i+j3ZmMaI9nPuzasKbNrT3evNnUewPBf5p9UEJdr2zA=" crossorigin="anonymous"></script>
+  <script>
+    const getJson = function(url, callback) {
+      // https://ipapi.co/api/#specific-location-field
+      // https://www.metaweather.com/api/location/search/?lattlong=(latt),(long)
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'json';
+      xhr.onload = function() {
+        const status = xhr.status;
+        if (status === 200) {
+          callback(null, xhr.response);
+        } else {
+          callback(status, xhr.response);
+        }
+      };
+      xhr.send();
+    };
+
+    const updateUI = text => document.querySelectorAll('#weather')[0].innerHTML = text;
+
+    function getCurrentWeather() {
+      updateUI('Loading...');
+      getJson('https://ipapi.co/json', (err, ipData) => {
+        if (err !== null) {
+          console.warn('Something went wrong: ' + err);
+        } else {
+
+          getJson(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/search/?lattlong=${ipData.latitude},${ipData.longitude}`, (err, weatherData) => {
+            if (err !== null) {
+              console.warn('Something went wrong: ' + err);
+            } else {
+
+              getJson(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/${weatherData[0].woeid}`, (err, weather) => {
+                if (err !== null) {
+                  console.warn('Something went wrong: ' + err);
+                } else {
+                  updateUI('');
+                  addLocationName(weather.title);
+                  addWeatherIcon(weather.consolidated_weather[0].weather_state_abbr);
+                  addWeatherInfos(weather.consolidated_weather[0]);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+
+    function addLocationName(title) {
+      const locationName = document.createElement("div");
+      locationName.setAttribute("class", "locationName");
+      locationName.innerHTML = `${title}`;
+      document.querySelectorAll('#weather')[0].appendChild(locationName);
+    }
+    function addWeatherIcon(abbr) {
+      const x = document.createElement("img");
+      x.setAttribute("src", `https://www.metaweather.com/static/img/weather/png/64/${abbr}.png`);
+      x.setAttribute("width", "64");
+      x.setAttribute("height", "64");
+      x.setAttribute("alt", "current weather");
+      document.querySelectorAll('#weather')[0].appendChild(x);
+    }
+    function addWeatherInfos(weather) {
+      const weatherState = document.createElement("div");
+      weatherState.setAttribute("class", "weatherState");
+      weatherState.innerHTML = `${weather.weather_state_name}`;
+
+      const temperature = document.createElement("div");
+      temperature.setAttribute("class", "temperature");
+      const high = document.createElement("span");
+      high.setAttribute("class", "highTemp");
+      high.innerHTML = `${Math.round(weather.max_temp)}&#176;`;
+      temperature.appendChild(high);
+
+      const low = document.createElement("span");
+      low.setAttribute("class", "lowTemp");
+      low.innerHTML = `${Math.round(weather.min_temp)}&#176;`;
+      temperature.appendChild(low);
+
+      const sunriseSunset = document.createElement("div");
+      sunriseSunset.setAttribute("class", "sunriseSunset");
+      sunriseSunset.innerHTML = `${weather.weather_state_name}`;
+
+      document.querySelectorAll('#weather')[0].appendChild(weatherState);
+      document.querySelectorAll('#weather')[0].appendChild(temperature);
+    }
+  </script>
+  <style>
+    #weather {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .locationName {
+      font-family: Arial;
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+
+    .weatherState {
+      margin-top: 16px;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .temperature {
+      margin-top: 8px;
+      text-align: center;
+      padding-bottom: 8px;
+    }
+
+    .lowTemp,
+    .highTemp {
+      margin-top: 16px;
+      font-family: Arial;
+    }
+
+    .lowTemp {
+      padding-left: 8px;
+      color: #dddddd;
+    }
+  </style>
+</head>
+
+<body>
+
+<div>
+  <div id="weather"></div>
+</div>
+
+<script>
+  async function main() {
+    updateUI('Loading...');
+
+    // get latest sdk
+    const { ShellSdk, SHELL_EVENTS } = await System.import('https://unpkg.com/fsm-shell').then(m => m.default);
+
+    console.log('using ShellSdk version', ShellSdk.VERSION);
+
+    if (!ShellSdk.isInsideShell()) {
+      throw new Error('unable to reach shell eventAPI');
+    }
+
+    const shellSdk = ShellSdk.init(parent, '*');
+
+    // get context
+    shellSdk.emit(SHELL_EVENTS.Version1.REQUIRE_CONTEXT, { clientIdentifier: 'example-plugin' });
+    shellSdk.on(SHELL_EVENTS.Version1.REQUIRE_CONTEXT, event => {
+      const {
+        account,
+        accountId,
+        company,
+        companyId,
+        user,
+        userId,
+        selectedLocale
+      } = JSON.parse(event);
+      getCurrentWeather();
+    });
+  }
+
+  main().catch(e => (console.error(e), getCurrentWeather()));
+</script>
+
+</body>
+
+</html>
