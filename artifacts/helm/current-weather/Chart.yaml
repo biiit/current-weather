@@ -13,13 +13,13 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.0.0
+version: 1.0.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: "1.0.0"
+appVersion: "1.0.1"
 
 description: Current weather based on your location, determined by your IP address
 
 # A URL to an SVG or PNG image to be used as an icon
-icon: https://www.metaweather.com/static/img/weather/s.svg
+icon: https://raw.githubusercontent.com/agugger/agugger-extension/master/IconWeather.png

@@ -2,7 +2,7 @@
   "name": "current-weather",
   "provider": "Forecast Ltd.",
   "description": "Current weather based on your location, determined by your IP address",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "https://raw.githubusercontent.com/agugger/agugger-extension/master/IconWeather.png",
   "useShellSDK": true,
   "dockerRegistry": "beatmeiersap",
